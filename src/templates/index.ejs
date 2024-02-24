@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Firebase Upload</title>
+</head>
+<body>
+    <form id="file-upload-form" enctype="multipart/form-data">
+        <input type="file" accept="image/*" name="file" />
+    </form>
+    <p id="status"></p>
+    <button onclick="upload()">Upload !</button>
+    <script>
+        /**
+         * @param status {string}
+         */
+        function setStatus(status) {
+            document.getElementById("status").innerHTML = status;
+        }
+
+        function clearStatus() {
+            document.getElementById("status").innerHTML = "";
+        }
+
+        let isUploading = false;
+        function upload() {
+            if (isUploading) return;
+            isUploading = true;
+            setStatus("Uploading...");
+            const fd = new FormData(document.getElementById("file-upload-form"));
+            for (const [fieldName, fieldValue] of fd.entries()) {
+                console.log(fieldName);
+                console.log(fieldValue);
+            }
+            fetch(`/`, {
+                method: 'POST',
+                body: fd,
+            }).then((res) => {
+                return res.json().then((data) => [res.status, data]);
+            }).then(([status, data]) => {
+                if (status != 200) {
+                    setStatus(`Error: ${data.message}`);
+                } else {
+                    setStatus(`Uploaded successfully. URL = <a href="${data.url}" target="_blank">${data.url}</a>`);
+                }
+            }).catch((e) => {
+                setStatus(`Fatal error: ${e}`);
+            }).finally(() => {
+                isUploading = false;
+            });
+        }
+    </script>
+</body>
+</html>
