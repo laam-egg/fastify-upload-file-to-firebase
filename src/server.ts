@@ -37,13 +37,24 @@ export async function createServer(): Promise<FastifyInstance> {
         if (!req.server.firebaseStorageBucket) {
             throw new Error("Bucket not defined");
         }
-        const remoteFile = req.server.firebaseStorageBucket.file(`RandomDir/${data.filename}`);
+        
+        const fileName = `RandomDir/${data.filename}`;
+        let overwritten = false;
+        const getFilesResponse = await req.server.firebaseStorageBucket.getFiles();
+        for (const f of getFilesResponse[0]) {
+            if (f.name.includes(data.filename)) {
+                overwritten = true;
+            }
+        }
+
+        const remoteFile = req.server.firebaseStorageBucket.file(fileName);
         const ws = remoteFile.createWriteStream();
         await pump(data.file, ws);
 
         await remoteFile.makePublic();
         return {
             url: remoteFile.publicUrl(),
+            overwritten,
         };
     });
 

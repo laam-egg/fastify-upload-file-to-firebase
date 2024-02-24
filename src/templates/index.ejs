@@ -42,7 +42,7 @@
                 if (status != 200) {
                     setStatus(`Error: ${data.message}`);
                 } else {
-                    setStatus(`Uploaded successfully. URL = <a href="${data.url}" target="_blank">${data.url}</a>`);
+                    setStatus(`Uploaded successfully.${data.overwritten ? " (Note: File overwritten.)" : ""} URL = <a href="${data.url}" target="_blank">${data.url}</a>`);
                 }
             }).catch((e) => {
                 setStatus(`Fatal error: ${e}`);
